@@ -1,0 +1,21 @@
+/*
+Theme Name:     Alewife
+Theme URI:
+Description:    Alewife them child theme based on twentytwenty.
+Author:         Me
+Author URI:
+Template:       twentytwenty
+Version:        0.1.0
+*/
+
+.site-logo {
+	width: 200px;
+}
+.site-description {
+	font-size: .875em;
+	font-style: italic;
+}
+
+.post-inner .entry-content > * {
+	max-width: 1200px !important;
+}
