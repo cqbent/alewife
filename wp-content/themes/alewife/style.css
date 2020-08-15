@@ -8,6 +8,20 @@ Template:       twentytwenty
 Version:        0.1.0
 */
 
+.menu-wrapper {
+	padding: 0 20px;
+}
+
+
+
+.container {
+	max-width: 1200px;
+}
+
+.section-inner {
+	width: 100% !important;
+}
+
 .site-logo {
 	width: 200px;
 }
@@ -16,6 +30,36 @@ Version:        0.1.0
 	font-style: italic;
 }
 
+.post-header {
+	margin-bottom: 1em;
+}
+
+.post-inner {
+	padding-top: 0;
+	margin-top: 1em;
+}
+
+.featured-media, .featured-media-alt {
+	margin-top: 1em;
+}
+
 .post-inner .entry-content > * {
-	max-width: 1200px !important;
+	width: 100% !important;
+	max-width: 100% !important;
+}
+
+.entry-categories-inner {
+	justify-content: left;
+}
+.entry-categories-inner a {
+
+}
+
+.template-cover article .post-inner {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+.entry-content h3 {
+	margin: 0 0 1em 0;
 }
