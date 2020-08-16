@@ -8,10 +8,31 @@ Template:       twentytwenty
 Version:        0.1.0
 */
 
+a, .primary-menu .icon {
+	color: #548826 !important;
+}
+
 .menu-wrapper {
 	padding: 0 20px;
 }
 
+.overlay-header #site-header {
+	margin: 0 auto;
+	width: 100%;
+	max-width: 100%;
+	padding: 0 calc((100% - 1200px) / 2);
+	background: rgba(100,100,100,.3);
+}
+
+.overlay-header #site-header a, .overlay-header #site-header .primary-menu .icon {
+	color: #fff !important;
+}
+
+@media (min-width: 1000px) {
+	.header-titles-wrapper {
+		max-width: 40%;
+	}
+}
 
 
 .container {
@@ -19,7 +40,11 @@ Version:        0.1.0
 }
 
 .section-inner {
-	width: 100% !important;
+	width: 100%;
+}
+
+.modal-inner .section-inner {
+	width: calc(100% - 8rem);
 }
 
 .site-logo {
