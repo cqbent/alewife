@@ -24,16 +24,13 @@ a, .primary-menu .icon {
 	background: rgba(100,100,100,.3);
 }
 
+#site-header .header-inner {
+	padding: 20px;
+}
+
 .overlay-header #site-header a, .overlay-header #site-header .primary-menu .icon {
 	color: #fff !important;
 }
-
-@media (min-width: 1000px) {
-	.header-titles-wrapper {
-		max-width: 40%;
-	}
-}
-
 
 .container {
 	max-width: 1200px;
@@ -47,12 +44,13 @@ a, .primary-menu .icon {
 	width: calc(100% - 8rem);
 }
 
-.site-logo {
+.site-logo img {
 	width: 200px;
 }
 .site-description {
 	font-size: .875em;
 	font-style: italic;
+	max-width: 450px;
 }
 
 .post-header {
@@ -83,8 +81,30 @@ a, .primary-menu .icon {
 .template-cover article .post-inner {
 	max-width: 1200px;
 	margin: 0 auto;
+	padding: 20px;
 }
 
 .entry-content h3 {
 	margin: 0 0 1em 0;
 }
+
+.header-footer-group {
+	margin: 1rem 20px;
+	max-width: 1200px;
+}
+.footer-widgets-outer-wrapper {
+	padding: 2rem 0;
+}
+
+@media (max-width: 768px) {
+	.screen-height {
+		min-height: 50vh;
+	}
+}
+
+@media (min-width: 1000px) {
+	.header-titles-wrapper {
+		max-width: 40%;
+	}
+}
+
