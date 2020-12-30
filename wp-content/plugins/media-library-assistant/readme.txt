@@ -3,9 +3,9 @@ Contributors: dglingren
 Donate link: http://davidlingren.com/#two
 Tags: media, media library, gallery, images, categories, tags, attachments, IPTC, EXIF, XMP, GPS, PDF, metadata, photos, photographs, photo albums, MIME, mime-type, icon, upload, file extensions, WPML, Polylang
 Requires at least: 3.5.0
-Tested up to: 5.5
+Tested up to: 5.6
 Requires PHP: 5.3
-Stable tag: 2.84
+Stable tag: 2.93
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -181,34 +181,38 @@ All of the MLA source code has been annotated with "DocBlocks", a special type o
 
 == Changelog ==
 
-= 2.84 =
-* New: For the "MLA Substitution Parameter Hooks Example" plugin, a new "ucwords" custom format value lets you uppercase the first letter in each word of a string.
-* New: For the Media/Assistant submenu table, if a non-image item has a Featured Image, it will be displayed as the item thumbnail instead of the MIME Type icon.
-* New: A new option, "Always Use MLA MIME Type", has been added to the Settings/Media Library Assistant Uploads tab. When checked, this option overrides WordPress validation logic that fails some uploads for "security purposes". For example, a CSV file that contains HTML tags on one or more cells. More information in the "Help" dropdown menu for the tab.
-* New: Support for the PaidMembershipsPro plugin has been added. MLA will restrict access to attachments assigned to "members-only categories" in the `[mla_gallery]` shortcode.
-* New: The "MLA Gallery Download Archive" example plugin implements a shortcode that lets you download the files attached to a "gallery" of Media library items as a ZIP archive file. Documentation is provided in comments at the start of the source code.
-* New: The "MLA CSV Data Source Example" plugin allows you to access values in a CSV file as a custom Data Source for MLA Bulk Edit templates, mapping rules and shortcode parameters. Detailed instructions are provided in a Documentation tab.
-* New: For the `[mla_tag_cloud]` and `[mla_term_list]` shortcodes, the `orderby=term_order` parameter supports the "drag and drop" ordering of taxonomy terms created by the <a href="https://wordpress.org/plugins/simple-custom-post-order/" target="_blank" rel="noopener noreferrer nofollow">Simple Custom Post Order</a> plugin.
-* New: For the `[mla_tag_cloud]` and `[mla_term_list]` shortcodes, the `orderby=tax_position` parameter supports the "drag and drop" ordering of taxonomy terms created by the <a href="https://wordpress.org/plugins/simple-taxonomy-ordering/" target="_blank" rel="noopener noreferrer nofollow">Simple Taxonomy Ordering</a> plugin.
-* New: For the Media/Assistant admin submenu and `[mla_gallery]` shortcode, support is added for the "Media Library" filter used in the <a href="https://wordpress.org/plugins/featured-image-from-url/" target="_blank" rel="noopener noreferrer nofollow">Featured Image from URL</a> plugin.
-* New: For the "MLA Advanced Custom Fields Example" plugin, add "where used" information for the ACF "image" field type. See the first page of the plugin source code for details.
-* New: A new `MLA_DEBUG_LEVEL` category allows logging of "query-attachments" requests and results for the Media Manager Modal Window.
-* New: For IPTC/EXIF taxonomy mapping rules, the "text" option supports composing a term name from a Content Template with multiple data sources.
-* New: Allow ALT Taxt values to be assigned to `application\*` MIME types, such as PDF documents, in the Media/Assistant Bulk Edit and Quick Edit areas. These will populate the `alt=` attributes of `<img>` tags in `[mla_gallery]` displays.
-* Fix: Deprecated Jquery functions have been replaced for compatibility with WP 5.5+.
-* Fix: Cross site scripting (reflected) and HTTP parameter pollution problems in `[mla_gallery]` pagination controls have been resolved.
-* Fix: Some problems parsing Content Templates with nested "test" delimiters have been resolved.
-* Fix: References to the `WP_Query` class documentation in the WordPress Code Reference have been updated.
-* Fix: Accommodate WordPress 5.4.2 bug that prevents changing "items per screen",e.g., on the Media/Assistant submenu table.
-* Fix: Correct parsing problems with embedded delimiter characters in Content Template choice elements.
-* Fix: Allow mapping rule taxonomy term assignment for "not logged in" applications such as WP/LR Sync.
-* Fix: Avoid PHP Notice messages for attempts to extract non-existent metadata from, for example, SVG images.
-* Fix: For the `[mla_gallery]` shortcode, empty `tax_query` parameters are now accepted and ignored, matching the behavior of simple taxonomy parameters.
-* Fix: For the Bulk Edit Area in the Media/Add New (Upload New Media) screen, content templates with backslash characters are now parsed and processed correctly.
-* Fix: For Admin Columns v4.1+ and Pro v5.0+, correct "Deprecated: AC\AdminColumns::register_list_screen..." problem.
-* Fix: For the "MLA Custom Feed Example" plugin, correct the handling of values containing quotes and special characters in the "Edit Feed" page.
+= 2.93 =
+* New: The "MLA Simple Mapping Hooks Example" plugin has been updated so it will run when attachments are uploaded or updated by the WP/LR Sync plugin.
+* New: For the "Smart Media Categories" example plugin, support has been added for the "Postie" plugin chron job that creates posts and attachments from an email.
+* Fix: <strong>Correct defect in parsing `request:` substitution parameters containing compound names to access array elements, e.g., `tax_input`.</strong>
+* Fix: <strong>For `[mla_gallery]` pagination shortcodes, correct defects in handling substitution parameters containing array values, e.g., `tax_input`.</strong>
+* Fix: For the "Smart Media Categories" example plugin, term synchronization now works when multiple attachments are added to a parent in the same page load.
 
-= 2.80 - 2.83 =
+= 2.92 =
+* Fix: Correct Media/Assistant Quick Edit error that deleted term assignments in the WordPress Categories taxonomy.
+
+= 2.91 =
+* Fix: Correct PHP Fatal "Uncaught ArgumentCountError" in some Media Manager query-attachments operations, e.g., Search Media.
+* Fix: Correct defect that prevented Media Manager operations such as "Edit Gallery" from retaining all current items when opened.
+
+= 2.90 =
+* New: <strong>A new example plugin, "MLA Parent Custom Field Mapping"</strong>, allows IPTC/EXIF and Custom Field mapping rules to update custom fields in the item's parent post/page rather than the items's own fields. Support for Advanced Custom Fields and WP/LR Sync is included.
+* New: <strong>The "MLA Randon Galleries Example" plugin has been greatly enhanced</strong>. The new version has many more parameters and a new plugin options page. A Documentation tab on the settings page contains all the information you need to understand and use the new version.
+* New: Three new field level data sources have been added for use in mapping rules, etc. They are `site_url`, `base_url` and `base_dir`. The last two give the location of the uploads directory.
+* New: For the `[mla_gallery]` shortcode, a new `size=icon_feature` parameter value will display item icons or the "Featured Image" associated with an item. This can be used to suppress the thumbnails and "PDF Thumbnails" that appear when `size=icon` is specified, but retain the explicitly assigned Featured Images.
+* New: For Advanced Custom Fields Pro "Gallery" Fields, restrictions such as minimum/maximum dimensions and sizes are now respected when adding items to the gallery.
+* New: For Custom Field or IPTC/EXIF mapping rules, a new "mla_purge_custom_field_values" filter lets you override the default "Purge Values" processing, and a new "mla_mapping_old_custom_value" filter lets you replace the current target value for "Existing Text" processing.
+* New: Added support for applying mapping rules to attachments created by "Postie" cron jobs.
+* Fix: Systematic review and update of all files for validating, sanitizing and escaping user data to reduce the risk of security exploits.
+* Fix: Allow IPTC and XMP metadata extraction from images that fail the WordPress `getimagesize( $path, $info )` logic.
+* Fix: For the `[mla_gallery]` shortcode, the default style and markup templates have been adjusted for greater compatibility with the styles and markup used in the WordPress `[gallery]` shortcode.
+* Fix: For the Media Manager Modal (popup) Window, changing term assignment(s) for Media Library items no longer changes the corresponding checkbox(s) in the underlying post/page.
+* Fix: For Media/Assistant submenu table filtering by a custom field value, dropdown setting is now retained and pagination controls have been repaired.
+* Fix: Deprecated reference to `postL10n.dateFormat` has been replaced with `wp.i18n.__`.
+* Fix: Handling of `[mla_gallery]` shortcodes with a blank but non-empty parameter string has been corrected.
+
+= 2.80 - 2.84 =
+* 2.84 - WP 5.5 support, new Always Use MLA MIME Type option, CSV Data Source example plugin, Support for PaidMembershipsPro, Simple Taxonomy Ordering, Simple Custom Post Order, Featured Image from URL plugins. Thirteen enhancements in all, twelve fixes.
 * 2.83 - Avoid "Fatal error:" with Admin Columns Pro version 5.1+. Fix Attachments area positioning in the Media Manager Modal (popup) Window. Two fixes in all.
 * 2.82 - Compatibility updates for WordPress 5.4. Security fixes to prevent three categories of attacks. New tools for "MLA Insert Fixit" and “WooCommerce Fixit Tools" example plugins. Fixes for `[mla_gallery]` and Media Manager Modal Window.  Seven enhancements in all, eleven fixes.
 * 2.81 - Compatibility updates for WordPress 5.3. New "mso:" prefix gives access to the Document Properties embedded in Office Open XML file formats (e.g., docx, xlsx, pptx). Three enhancements, eight fixes.
@@ -317,8 +321,8 @@ All of the MLA source code has been annotated with "DocBlocks", a special type o
 
 == Upgrade Notice ==
 
-= 2.84 =
-WP 5.5 support, new Always Use MLA MIME Type option, CSV Data Source example plugin, Support for PaidMembershipsPro, Simple Taxonomy Ordering, Simple Custom Post Order, Featured Image from URL plugins. Thirteen enhancements in all, twelve fixes.
+= 2.93 =
+IMPORTANT: Correct defects in handling array values, e.g., tax_input, in request: parameters and pagination controls. Example plugin enhancements. Two enhancements in all, three fixes.
 
 == Other Notes ==
 

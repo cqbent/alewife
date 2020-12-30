@@ -1040,13 +1040,13 @@ class MLAData {
 
 				if ( ! empty( $args['args'] ) ) {
 					if ( is_array( $args['args'] ) ) {
-						$start = intval( $args['args'][0] );
+						$start = (int) $args['args'][0];
 
 						if ( 1 < count( $args['args'] ) ) {
-							$length = intval( $args['args'][1] );
+							$length = (int) $args['args'][1];
 						}
 					} else {
-						$start = intval( $args['args'] );
+						$start = (int) $args['args'];
 					}
 				}
 
@@ -1109,7 +1109,7 @@ class MLAData {
 							$return_value = $args['args'][1];
 
 							if ( is_numeric( $return_value ) ) {
-								$return_value = intval( $return_value );
+								$return_value = (int) $return_value;
 							}
 						}
 					} else {
@@ -1285,12 +1285,12 @@ class MLAData {
 					break;
 				case 'request':
 					if ( isset( $_REQUEST[ $value['value'] ] ) ) {
-						$record = $_REQUEST[ $value['value'] ];
+						$record = wp_kses( wp_unslash( $_REQUEST[ $value['value'] ] ), 'post' );
 					} else {
 						// Look for compound names, e.g., tax_input.attachment_category
 						$key_array = explode( '.', $value['value'] );
 						if ( 1 < count( $key_array ) && isset( $_REQUEST[ $key_array[0] ] ) ) {
-							$array_value = array( $key_array[0] => $_REQUEST[ $key_array[0] ] );
+							$array_value = array( $key_array[0] => wp_unslash( $_REQUEST[ $key_array[0] ] ) ); // phpcs:ignore
 							$record = MLAData::mla_find_array_element( $value['value'], $array_value, $value['option'], false, ',' );
 						} else {
 							$record = '';
@@ -3305,7 +3305,7 @@ class MLAData {
 						if ( ( -1 <= $value ) && ( 1 >= $value ) ) {
 							return sprintf( $fraction_format, $fragments[0], $fragments[1] );
 						} else {
-							if ( $value == intval( $value ) ) {
+							if ( $value == (int) $value ) {
 								return sprintf( $integer_format, $value );
 							}else {
 								return sprintf( $mixed_format, $value );
@@ -3532,10 +3532,10 @@ class MLAData {
 			MLACore::mla_debug_add( __LINE__ . ' mla_fetch_attachment_image_metadata getimagesize returns ' . var_export( $size, true ), MLACore::MLA_DEBUG_CATEGORY_METADATA );
 			MLACore::mla_debug_add( __LINE__ . ' mla_fetch_attachment_image_metadata getimagesize info keys =  ' . var_export( array_keys( $info ), true ), MLACore::MLA_DEBUG_CATEGORY_METADATA );
 
-			// SVG and some other types don't have metadata
+			/*/ SVG and some other types don't have metadata: removed v2.90
 			if ( false === $size ) {
 				return $results;
-			}
+			} // */
 
 			if ( is_callable( 'iptcparse' ) ) {
 				if ( ! empty( $info['APP13'] ) ) {
@@ -3582,7 +3582,7 @@ class MLAData {
 				} // ! empty
 			} // iptcparse
 
-			if ( is_callable( 'exif_read_data' ) && in_array( $size[2], array( IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM ) ) ) {
+			if ( is_callable( 'exif_read_data' ) && !empty( $size[2] ) && in_array( $size[2], array( IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM ) ) ) {
 				set_error_handler( 'MLAData::mla_IPTC_EXIF_error_handler' );
 				try {
 					$exception = NULL;
@@ -3662,7 +3662,7 @@ class MLAData {
 				$results['mla_xmp_metadata'] = array();
 			}
 
-			// experimental damage repair for Robert O'Conner (Rufus McDufus)
+			// damage repair for Robert O'Conner (Rufus McDufus)
 			if ( isset( $exif_data['DateTimeOriginal'] ) && ( 8 > strlen( $exif_data['DateTimeOriginal'] ) ) ) {
 				if ( isset( $results['mla_xmp_metadata']['CreateDate'] )&& ( is_numeric( strtotime( $results['mla_xmp_metadata']['CreateDate'] ) ) ) ) {
 					$exif_data['BadDateTimeOriginal'] = $exif_data['DateTimeOriginal'];
@@ -3837,9 +3837,7 @@ class MLAData {
 			$results['mla_exif_metadata']['CAMERA'] = $new_data;
 		}
 
-		/*
-		 * Expand EXIF GPS values
-		 */
+		// Expand EXIF GPS values
 		$new_data = array();
 		if ( isset( $exif_data['GPSVersion'] ) ) {
 			$new_data['Version'] = sprintf( '%1$d.%2$d.%3$d.%4$d', ord( $exif_data['GPSVersion'][0] ), ord( $exif_data['GPSVersion'][1] ), ord( $exif_data['GPSVersion'][2] ), ord( $exif_data['GPSVersion'][3] ) );
@@ -4040,7 +4038,14 @@ class MLAData {
 	 */
 	public static function mla_update_item_postmeta( $post_id, $new_meta ) {
 		$post_data = MLAQuery::mla_fetch_attachment_metadata( $post_id );
-		$message = '';
+		
+		// Check for updates from "mla_mapping_updates" filters
+		if ( !empty( $new_meta[0x80000000] ) ) {
+			$message = $new_meta[0x80000000];
+			unset( $new_meta[0x80000000] );
+		} else {
+			$message = '';
+		}
 
 		$attachment_meta_values = array();
 		foreach ( $new_meta as $meta_key => $meta_value ) {
@@ -4501,7 +4506,7 @@ class MLAData {
 						) );
 
 						if ( ! empty( $_term ) ) {
-							$clean_terms[] = intval( $_term[0] );
+							$clean_terms[] = (int) $_term[0];
 						} else {
 							// No existing term was found, so pass the string. A new term will be created.
 							$clean_terms[] = $tag;

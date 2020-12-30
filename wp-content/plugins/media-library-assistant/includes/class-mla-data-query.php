@@ -965,7 +965,7 @@ class MLAQuery {
 						break;
 					}
 
-					$clean_request[ $key ] = intval( $value );
+					$clean_request[ $key ] = (int) $value;
 					break;
 				case 'order':
 					switch ( $value = strtoupper ($value ) ) {

@@ -3,9 +3,9 @@
  * Manages synchronization between a parent post and its children.
  *
  * @package   Smart_Media_Categories_Admin
- * @author    David Lingren <dlingren@comcast.net>
+ * @author    David Lingren <david@davidlingren.com>
  * @license   GPL-2.0+
- * @link      @TODO http://example.com
+ * @link      http://davidlingren.com
  * @copyright 2014 David Lingren
  */
 
@@ -17,7 +17,7 @@
  * no need to create a new instance of the class.
  *
  * @package Smart_Media_Categories_Admin
- * @author  David Lingren <dlingren@comcast.net>
+ * @author  David Lingren <david@davidlingren.com>
  */
 class SMC_Sync_Support {
 	/**
@@ -54,26 +54,29 @@ class SMC_Sync_Support {
 	 *
 	 * @since    1.0.2
 	 *
-	 * @param	array	Optional; ('smc_status', 'post_parents', 'fields')
+	 * @param	array	Optional; ('post_type', 'smc_status', 'post_parents', 'fields')
+	 * @param	boolean	Optional; true to flush the cache, e.g., when adding attachments
 	 *
 	 * @return	array	( 'sync' => Synced posts, 'unsync' => Unsynced posts )
 	 */
-	public static function get_posts_per_view( $attr = NULL ) {
+	public static function get_posts_per_view( $attr = NULL, $flush_cache = false ) {
 		global $wpdb;
 		static $save_attr = NULL, $posts_per_view = NULL;
 
-		/*
-		 * Make sure $attr is an array, even if it's empty
-		 */
+		if ( $flush_cache ) {
+			$save_attr = NULL;
+			$posts_per_view = NULL;
+			return array();
+		}
+		
+		// Make sure $attr is an array, even if it's empty
 		if ( empty( $attr ) ) {
 			$attr = array();
 		} elseif ( is_string( $attr ) ) {
 			$attr = shortcode_parse_atts( $attr );
 		}
 
-		/*
-		 * Create the PHP variables we need
-		 */
+		// Create the PHP variables we need
 		extract( shortcode_atts( array(
 			'post_type' => 'post',
 			'smc_status' => NULL, // 'sync', 'unsync'
@@ -283,7 +286,7 @@ class SMC_Sync_Support {
 
 		// Compute sync status
 		foreach ( $assignments as $parent_id => $assignment ) {
-//error_log( __LINE__ ."' SMC_Sync_Support::get_posts_per_view (parent {$parent_id}) assignment = " . var_export( $assignment, true ), 0 );
+//error_log( __LINE__ ." SMC_Sync_Support::get_posts_per_view (parent {$parent_id}) assignment = " . var_export( $assignment, true ), 0 );
 			$parent_terms = $assignment['ttids'];
 			unset( $assignment['ttids'] );
 			unset( $assignment['terms'] );
@@ -393,7 +396,7 @@ class SMC_Sync_Support {
 			} else {
 				$parent_terms = $results[ $parent_id ][ $taxonomy ] = array();
 			}
-//error_log( __LINE__ ."' SMC_Sync_Support::get_terms ({$taxonomy}) \$parent_terms = " . var_export( $parent_terms, true ), 0 );
+//error_log( __LINE__ ." SMC_Sync_Support::get_terms ({$taxonomy}) \$parent_terms = " . var_export( $parent_terms, true ), 0 );
 			
 			foreach( $children as $child ) {
 				if ( ! isset( $results[ $child ][ $taxonomy ] ) ) {
@@ -408,7 +411,7 @@ class SMC_Sync_Support {
 				} else {
 					$results[ $child ]['smc_sync'] = $results[ $child ][ $taxonomy ]['smc_sync'];
 				}
-//error_log( __LINE__ ."' SMC_Sync_Support::get_terms ({$child}) \$results = " . var_export( $results, true ), 0 );
+//error_log( __LINE__ ." SMC_Sync_Support::get_terms ({$child}) \$results = " . var_export( $results, true ), 0 );
 			}
 		}
 		
@@ -471,7 +474,7 @@ class SMC_Sync_Support {
 //error_log( __LINE__ . ' SMC_Sync_Support::sync_all $tax_action = ' . var_export( $tax_action, true ), 0 );
 
 			$results = SMC_Sync_Support::sync_terms( $parent_id, $children, $tax_input, $tax_action );
-//error_log( __LINE__ ."' SMC_Sync_Support::sync_all {$parent_id} results = " . var_export( $results, true ), 0 );
+//error_log( __LINE__ ." SMC_Sync_Support::sync_all {$parent_id} results = " . var_export( $results, true ), 0 );
 			if ( $results['updated'] ) {
 				$parent_count++;
 				$children_count += $results['updated'];
@@ -558,14 +561,17 @@ class SMC_Sync_Support {
 			}
 
 			$taxonomy_obj = get_taxonomy( $taxonomy );
-//error_log( __LINE__ ."' SMC_Sync_Support::sync_terms \$taxonomy_obj = " . var_export( $taxonomy_obj, true ), 0 );
-			if ( ! current_user_can( $taxonomy_obj->cap->assign_terms ) ) {
-				continue;
+//error_log( __LINE__ ." SMC_Sync_Support::sync_terms \$taxonomy_obj = " . var_export( $taxonomy_obj, true ), 0 );
+
+			// Check if logged-in user can assign terms
+			$current_user = wp_get_current_user();
+			if ( $current_user->ID ) {
+				if ( ! current_user_can( $taxonomy_obj->cap->assign_terms ) ) {
+					continue;
+				}
 			}
 			
-			/*
-			 * Arrays are term-ids, strings are slugs
-			 */
+			// Arrays are term-ids, strings are slugs
 			$terms = $tax_inputs[ $taxonomy ];
 			if ( is_array( $terms ) ) {
 				$terms = array_filter( array_map( 'absint', $terms ) );
@@ -578,9 +584,7 @@ class SMC_Sync_Support {
 				$terms = array_filter( array_map( 'trim', explode(',', $terms ) ) );
 			}
 
-			/*
-			 * Get the parent terms, compare for changes, update as necessary
-			 */
+			// Get the parent terms, compare for changes, update as necessary
 			$terms_before = array();
 			if ( isset( $term_assignments[ $parent_id ][ $taxonomy ] ) ) {
 				foreach( $term_assignments[ $parent_id ][ $taxonomy ] as $term_taxonomy_id => $term ) {
@@ -596,12 +600,10 @@ class SMC_Sync_Support {
 			if ( $terms_after != $terms_before ) {
 				$parent_changed = true;
 			}
-			
-//error_log( __LINE__ ."' SMC_Sync_Support::sync_terms \$terms[{$taxonomy}] = " . var_export( $terms, true ), 0 );
-//error_log( __LINE__ ."' SMC_Sync_Support::sync_terms \$parent_changed = " . var_export( $parent_changed, true ), 0 );
-			/*
-			 * For each child, get the terms, compare for changes, update as necessary
-			 */
+//error_log( __LINE__ ." SMC_Sync_Support::sync_terms \$terms[{$taxonomy}] = " . var_export( $terms, true ), 0 );
+//error_log( __LINE__ ." SMC_Sync_Support::sync_terms \$parent_changed = " . var_export( $parent_changed, true ), 0 );
+
+			// For each child, get the terms, compare for changes, update as necessary
 			foreach( $children as $child ) {
 				$terms_before = array();
 				if ( isset( $term_assignments[ $child ][ $taxonomy ] ) ) {
@@ -618,9 +620,9 @@ class SMC_Sync_Support {
 				if ( $terms_after != $terms_before ) {
 					$children_changed[ $child ] = $child;
 				}
-//error_log( __LINE__ ."' SMC_Sync_Support::sync_terms \$terms_before[{$child}] = " . var_export( $terms_before, true ), 0 );
-//error_log( __LINE__ ."' SMC_Sync_Support::sync_terms \$terms_after = " . var_export( $terms_after, true ), 0 );
-//error_log( __LINE__ ."' SMC_Sync_Support::sync_terms \$children_changed = " . var_export( $children_changed, true ), 0 );
+//error_log( __LINE__ ." SMC_Sync_Support::sync_terms \$terms_before[{$child}] = " . var_export( $terms_before, true ), 0 );
+//error_log( __LINE__ ." SMC_Sync_Support::sync_terms \$terms_after = " . var_export( $terms_after, true ), 0 );
+//error_log( __LINE__ ." SMC_Sync_Support::sync_terms \$children_changed = " . var_export( $children_changed, true ), 0 );
 			}
 		}
 		

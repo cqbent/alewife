@@ -631,6 +631,10 @@ The Size parameter specifies the image size to use for the thumbnail display; "t
 <td>Display an appropriate 60x60 (or 64x64) pixel thumbnail for image items and an appropriate icon for non-image items such as PDF or text files.</td>
 </tr>
 <tr>
+<td class="mla-doc-table-label">icon_feature</td>
+<td>Display an appropriate 60x60 (or 64x64) pixel icon for <strong>ALL</strong> items, image and non-image. If, however, an item has a "Featured Image" it will replace the icon.</td>
+</tr>
+<tr>
 <td class="mla-doc-table-label">icon_only</td>
 <td>Display an appropriate 60x60 (or 64x64) pixel icon for <strong>ALL</strong> items, image and non-image.</td>
 </tr>
@@ -4578,6 +4582,18 @@ Each Media Library attachment item has a row in the "posts" database table that 
 <td style="padding-bottom: 2em;">ALT text, for image types. If there are multiple values (unlikely) they will be returned as a comma-separated list. You can use the ",single" or ",export" option values to change that.</td>
 </tr>
 <tr>
+<td class="mla-doc-table-label">site_url</td>
+<td style="vertical-align: top">absolute URL to the site directory, without trailing slash.</td>
+</tr>
+<tr>
+<td class="mla-doc-table-label">base_url</td>
+<td>absolute URL to the upload directory, without trailing slash.</td>
+</tr>
+<tr>
+<td class="mla-doc-table-label">base_dir</td>
+<td style="padding-bottom: 2em;">absolute (full) path to the upload directory, without trailing slash.</td>
+</tr>
+<tr>
 <td class="mla-doc-table-label">absolute_path</td>
 <td>complete path portion of the attachment file, e.g., C:/site/wordpress/wp-content/uploads/2012/11/</td>
 </tr>
@@ -6908,6 +6924,10 @@ The current mapping hooks are:
 <td class="mla-doc-hook-definition">called once for each custom field mapping rule, after the rule is evaluated. You can change the new value produced by the rule.</td>
 </tr>
 <tr>
+<td class="mla-doc-table-label">mla_mapping_old_custom_value</td>
+<td class="mla-doc-hook-definition">called once for each Custom Field mapping rule, after the "old text" portion of the rule is evaluated. You can change the old value produced by the rule.</td>
+</tr>
+<tr>
 <td class="mla-doc-table-label">mla_mapping_iptc_value</td>
 <td class="mla-doc-hook-definition">called once for each IPTC/EXIF mapping rule, after the IPTC portion of the rule is evaluated. You can change the new value produced by the rule.</td>
 </tr>
@@ -6926,6 +6946,10 @@ The current mapping hooks are:
 <tr>
 <td class="mla-doc-table-label">mla_end_mapping</td>
 <td class="mla-doc-hook-definition">called once, after mapping rules for any/all attachment(s) are executed. This is a good place to close files, perform cleanup, etc.</td>
+</tr>
+<tr>
+<td class="mla-doc-table-label">mla_purge_custom_field_values</td>
+<td class="mla-doc-hook-definition">called once for each custom field mapping rule, when the "Purge Values" rollover or Bulk action is executed. This is a good place to apply your own purge logic or prevent the purge from taking place.</td>
 </tr>
 </table>
 <p>

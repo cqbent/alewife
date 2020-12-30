@@ -47,7 +47,7 @@ function pdfjs_options_page() {
 			<table class="form-table" role="presentation">
 				<h2 class="title"><?php esc_html_e( 'Defaults', 'pdfjs-viewer' ); ?></h2>
 				<p>
-					<?php esc_html_e( 'Most defaults only affect new posts and existing posts when you edit them.', 'pdfjs-viewer' ); ?>
+					<?php esc_html_e( 'Most defaults only affect new posts and existing posts when you edit them. Not all options work with the shortcode.', 'pdfjs-viewer' ); ?>
 				</p>
 				<tr>
 					<th scope="row"><label for="pdfjs_download_button"><?php esc_html_e( 'Show Download Button', 'pdfjs-viewer' ); ?></label></th>
@@ -79,7 +79,10 @@ function pdfjs_options_page() {
 				</tr>
 				<tr>
 					<th scope="row"><label for="pdfjs_embed_width"><?php esc_html_e( 'Embed Width', 'pdfjs-viewer' ); ?></label></th>
-					<td><input type="number" class="regular-text" id="pdfjs_embed_width" name="pdfjs_embed_width" value="<?php echo $embed_width ? $embed_width : 0; ?>" /></td>
+					<td>
+						<input type="number" class="regular-text" id="pdfjs_embed_width" name="pdfjs_embed_width" value="<?php echo $embed_width ? $embed_width : 0; ?>" />
+						<p><?php esc_html_e( 'Note: 0 = 100%', 'pdfjs-viewer' ); ?></p>
+					</td>
 				</tr>
 				<tr>
 					<th scope="row"><label for="pdfjs_viewer_scale"><?php esc_html_e( 'Viewer Scale', 'pdfjs-viewer' ); ?></label></th>

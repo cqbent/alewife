@@ -35,7 +35,7 @@ class MLAOptions {
 			add_filter( 'wp_generate_attachment_metadata', 'MLAOptions::mla_generate_attachment_metadata_filter', 0x7FFFFFFF, 2 );
 			add_filter( 'wp_update_attachment_metadata', 'MLAOptions::mla_update_attachment_metadata_filter', 0x7FFFFFFF, 2 );
 
-			MLACore::mla_debug_add( __LINE__ . " MLAOptions::initialize( " . $_SERVER['REQUEST_URI'] . " ) hooks set", MLACore::MLA_DEBUG_CATEGORY_REST );
+			MLACore::mla_debug_add( __LINE__ . " MLAOptions::initialize( " . $_SERVER['REQUEST_URI'] . " ) hooks set", MLACore::MLA_DEBUG_CATEGORY_REST ); // phpcs:ignore
 		}
 	}
 
@@ -955,6 +955,8 @@ class MLAOptions {
 						}
 					}
 
+					$old_text = apply_filters( 'mla_mapping_old_custom_value', $old_text, $setting_key, $post_id, $category, $attachment_metadata );
+
 					if ( ( ' ' != $new_text ) && empty( $old_text ) ) {
 						$custom_updates[ $setting_value['name'] ] = $new_text;
 					}
@@ -1833,6 +1835,8 @@ class MLAOptions {
 							$old_value = trim( $old_value );
 						}
 					}
+
+					$old_value = apply_filters( 'mla_mapping_old_custom_value', $old_value, $setting_key, $post->ID, 'iptc_exif_custom_mapping', $attachment_metadata );
 
 					if ( ( ! empty( $new_text ) ) && empty( $old_value ) ) {
 						$custom_updates[ $setting_name ] = $new_text;

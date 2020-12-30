@@ -352,7 +352,7 @@ href="#mla-new-iptc-exif"> [+Cancel new field+] </a></td>
 										<option value="">[+Replace+]</option>
 									</select>
 									</span> </label>
-								<label class="alignleft"> <span class="dropdown-title">[+Option+]</span> <span class="input-dropdown-wrap">
+								<label class="alignleft inline-taxonomy-group"> <span class="dropdown-title">[+Option+]</span> <span class="input-dropdown-wrap">
 									<select name="tax_option">
 										<option value="array">[+Array+]</option>
 										<option value="text">[+Text+]</option>

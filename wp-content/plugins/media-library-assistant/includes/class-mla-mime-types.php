@@ -105,7 +105,7 @@ class MLAMime {
 			return $mime_to_ext;
 		}
 		
-		$file_name = strtolower( $_REQUEST['name'] );
+		$file_name = strtolower( sanitize_text_field( wp_unslash( $_REQUEST['name'] ) ) );
 		if ( false === strpos( $file_name, '.svg' ) ) {
 			return $mime_to_ext;
 		}
@@ -853,9 +853,7 @@ class MLAMime {
 							$clean_request[ $key ] = 'ASC';
 					}
 					break;
-				/*
-				 * ['s'] - Search Media by one or more keywords
-				 */
+				// ['s'] - Search Media by one or more keywords
 				case 's':
 					$clean_request[ $key ] = stripslashes( trim( $value ) );
 					break;
@@ -864,9 +862,7 @@ class MLAMime {
 			} // switch $key
 		} // foreach $raw_request
 
-		/*
-		 * Ignore incoming paged value; use offset and count instead
-		 */
+		// Ignore incoming paged value; use offset and count instead
 		if ( ( (int) $count ) > 0 ) {
 			$clean_request['offset'] = $offset;
 			$clean_request['posts_per_page'] = $count;
@@ -948,12 +944,10 @@ class MLAMime {
 			$sorted_types = array_reverse( $sorted_types, true );
 		}
 
-		/*
-		 * Paginate the sorted list
-		 */
+		// Paginate the sorted list
 		$results = array();
-		$offset = isset( $request['offset'] ) ? $request['offset'] : 0;
-		$count = isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : -1;
+		$offset = isset( $request['offset'] ) ? absint( $request['offset'] ) : 0;
+		$count = isset( $request['posts_per_page'] ) ? absint( $request['posts_per_page'] ) : -1;
 		foreach ( $sorted_types as $value ) {
 			if ( $offset ) {
 				$offset--;
@@ -1632,12 +1626,10 @@ class MLAMime {
 			$sorted_types = array_reverse( $sorted_types, true );
 		}
 
-		/*
-		 * Paginate the sorted list
-		 */
+		// Paginate the sorted list
 		$results = array();
-		$offset = isset( $request['offset'] ) ? $request['offset'] : 0;
-		$count = isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : -1;
+		$offset = isset( $request['offset'] ) ? absint( $request['offset'] ) : 0;
+		$count = isset( $request['posts_per_page'] ) ? absint( $request['posts_per_page'] ) : -1;
 		foreach ( $sorted_types as $value ) {
 			if ( $offset ) {
 				$offset--;
@@ -2376,9 +2368,7 @@ class MLAMime {
 			);
 		}
 
-		/*
-		 * $request = NULL is a call from MLASettings::_version_upgrade
-		 */
+		// $request = NULL is a call from MLASettings::_version_upgrade
 		if ( NULL == $request ) {
 			self::_put_upload_mime_templates();
 			return;
@@ -2408,29 +2398,28 @@ class MLAMime {
 			);
 		}
 
-		/*
-		 * Validate changed slug value
-		 */
+		// Validate changed slug value
 		if ( $slug != $original_slug ) {
 			if ( $slug != $request['slug'] ) {
 				/* translators: 1: element name 2: bad_value 3: good_value */
 				$messages .= sprintf( __( '<br>' . 'Changing new %1$s "%2$s" to valid value "%3$s"', 'media-library-assistant' ), __( 'Extension', 'media-library-assistant' ), $request['slug'], $slug );
 			}
 
-			/*
-			 * Make sure new slug is unique
-			 */
+			// Make sure new slug is unique
 			if ( isset( self::$mla_upload_mime_templates[ $slug ] ) ) {
 				/* translators: 1: ERROR tag 2: slug */
 				$errors .= '<br>' . sprintf( __( '%1$s: Could not add new extension "%2$s"; value already exists', 'media-library-assistant' ), __( 'ERROR', 'media-library-assistant' ), $slug );
 			} else {
 				/* translators: 1: element name 2: old_value 3: new_value */
 				$messages .= sprintf( '<br>' . __( 'Changing %1$s from "%2$s" to "%3$s"', 'media-library-assistant' ), __( 'Extension', 'media-library-assistant' ), $original_slug, $slug );
+
+				// Changing the slug with "Quick Edit" must retain the original Description
+				if ( !isset( $request['description'] ) ) {
+					$request['description'] = $original_type['description'];
+				}
 			}
 
-			/*
-			 * A new extension cannot have an $original_type
-			 */
+			// A new extension cannot have an $original_type
 			$original_type = array(
 				'post_ID' => 0,
 				'mime_type' => '',
@@ -2447,9 +2436,7 @@ class MLAMime {
 			);
 		}
 
-		/*
-		 * Validate mime_type
-		 */
+		// Validate mime_type
 		if ( empty( $request['mime_type'] ) ) {
 			$clean_mime_type = $original_type['mime_type'];
 		} else {
@@ -2478,9 +2465,7 @@ class MLAMime {
 		$new_type['core_type'] = $original_type['core_type'];
 		$new_type['mla_type'] = $original_type['mla_type'];
 
-		/*
-		 * Determine the source
-		 */
+		// Determine the source
 		if ( 'core' == $original_type['standard_source'] && $clean_mime_type == $original_type['core_type'] ) {
 			$new_type['source'] = 'core';
 		} elseif ( 'mla' == $original_type['standard_source'] && $clean_mime_type == $original_type['mla_type'] ) {
@@ -2489,9 +2474,7 @@ class MLAMime {
 			$new_type['source'] = 'custom';
 		}
 
-		/*
-		 * Determine new icon types
-		 */
+		// Determine new icon types
 		$new_type['core_icon_type'] = self::mla_get_core_icon_type( $slug );
 
 		if ( isset( $request['icon_type'] ) ) {
@@ -2777,12 +2760,10 @@ class MLAMime {
 			$sorted_types = array_reverse( $sorted_types, true );
 		}
 
-		/*
-		 * Paginate the sorted list
-		 */
+		// Paginate the sorted list
 		$results = array();
-		$offset = isset( $request['offset'] ) ? $request['offset'] : 0;
-		$count = isset( $request['posts_per_page'] ) ? $request['posts_per_page'] : -1;
+		$offset = isset( $request['offset'] ) ? absint( $request['offset'] ) : 0;
+		$count = isset( $request['posts_per_page'] ) ? absint( $request['posts_per_page'] ) : -1;
 		foreach ( $sorted_types as $value ) {
 			if ( $offset ) {
 				$offset--;

@@ -161,11 +161,14 @@ class MLA_Ajax {
 		 * For flat taxonomies that use the checklist meta box, substitute our own handler
 		 * for /wp-admin/includes/ajax-actions.php function _wp_ajax_add_hierarchical_term().
 		 */
-		if ( ( defined('DOING_AJAX') && DOING_AJAX ) && ( 'add-' == substr( $_REQUEST['action'], 0, 4 ) ) ) {
-			$key = substr( $_REQUEST['action'], 4 );
-			if ( MLACore::mla_taxonomy_support( $key, 'flat-checklist' ) ) {
-				self::_mla_ajax_add_flat_term( $key );
-				/* note: this function sends an Ajax response and then dies; no return */
+		if ( defined('DOING_AJAX') && DOING_AJAX ) {
+			$action = sanitize_text_field( isset( $_REQUEST['action'] ) ? wp_unslash( $_REQUEST['action'] ) : '' );
+			if (  'add-' === substr( $action, 0, 4 ) ) {
+				$key = substr( $action, 4 );
+				if ( MLACore::mla_taxonomy_support( $key, 'flat-checklist' ) ) {
+					// note: this function sends an Ajax response and then dies; no return
+					self::_mla_ajax_add_flat_term( $key );
+				}
 			}
 		}
 
@@ -186,13 +189,14 @@ class MLA_Ajax {
 	 */
 	private static function _mla_ajax_add_flat_term( $key ) {
 		$taxonomy = get_taxonomy( $key );
-		check_ajax_referer( $_REQUEST['action'], '_ajax_nonce-add-' . $key, true );
+		check_ajax_referer( sanitize_text_field( isset( $_REQUEST['action'] ) ? wp_unslash( $_REQUEST['action'] ) : '' ), '_ajax_nonce-add-' . $key, true );
 
 		if ( !current_user_can( $taxonomy->cap->edit_terms ) ) {
 			wp_die( -1 );
 		}
 
-		$new_names = explode( ',', $_POST[ 'new' . $key ] );
+		$new_names = sanitize_text_field( isset( $_POST[ 'new' . $key ] ) ? wp_unslash( $_POST[ 'new' . $key ] ) : '' );
+		$new_names = explode( ',', $new_names );
 		$new_terms_markup = '';
 		foreach( $new_names as $name ) {
 			if ( '' === sanitize_title( $name ) ) {
@@ -249,7 +253,7 @@ class MLA_Ajax {
 		if ( empty( $_REQUEST['mla_item'] ) ) {
 			$download_args['error'] = 'ERROR: mla_item argument not set.';
 		} else {
-			$item_name = $_REQUEST['mla_item'];
+			$item_name = sanitize_title( isset( $_REQUEST['mla_item'] ) ? wp_unslash( $_REQUEST['mla_item'] ) : '' );
 			$args = array(
 				'name'           => $item_name,
 				'post_type'      => 'attachment',
@@ -266,7 +270,7 @@ class MLA_Ajax {
 					$download_args['mla_download_type'] = $items[0]->post_mime_type;
 					
 					if ( !empty( $_REQUEST['mla_disposition'] ) ) {
-						$download_args['mla_disposition'] = $_REQUEST['mla_disposition'];
+						$download_args['mla_disposition'] = sanitize_text_field( wp_unslash( $_REQUEST['mla_disposition'] ) );
 					}
 				} else {
 					$download_args['error'] = 'ERROR: mla_item no attached file.';
@@ -276,7 +280,7 @@ class MLA_Ajax {
 			}
 		}
 		
-		MLAFileDownloader::$mla_debug = isset( $_REQUEST['mla_debug'] ) && 'log' == $_REQUEST['mla_debug'];
+		MLAFileDownloader::$mla_debug = 'log' === sanitize_text_field( isset( $_REQUEST['mla_debug'] ) ? wp_unslash( $_REQUEST['mla_debug'] ) : 'false' );
 		MLAFileDownloader::mla_process_download_file( $download_args );
 
 		MLACore::mla_debug_add( __LINE__ . " MLA_Ajax::mla_named_transfer_ajax_action failed. \$_REQUEST = " . var_export( $_REQUEST, true ), MLACore::MLA_DEBUG_CATEGORY_AJAX );
@@ -302,12 +306,13 @@ class MLA_Ajax {
 		$post_types = get_post_types( array( 'public' => true ), 'objects' );
 		unset( $post_types['attachment'] );
 
-		$s = stripslashes( $_REQUEST['mla_set_parent_search_text'] );
-		$count = isset( $_REQUEST['mla_set_parent_count'] ) ? $_REQUEST['mla_set_parent_count'] : 50;
-		$paged = isset( $_REQUEST['mla_set_parent_paged'] ) ? $_REQUEST['mla_set_parent_paged'] : 1;
+		$s = sanitize_text_field( isset( $_REQUEST['mla_set_parent_search_text'] ) ? wp_unslash( $_REQUEST['mla_set_parent_search_text'] ) : '' );
+		$count = isset( $_REQUEST['mla_set_parent_count'] ) ? absint( $_REQUEST['mla_set_parent_count'] ) : 50;
+		$paged = isset( $_REQUEST['mla_set_parent_paged'] ) ? absint( $_REQUEST['mla_set_parent_paged'] ) : 1;
 
+		$post_type = sanitize_text_field( isset( $_REQUEST['mla_set_parent_post_type'] ) ? wp_unslash( $_REQUEST['mla_set_parent_post_type'] ) : 'all' );
 		$args = array(
-			'post_type' => ( 'all' == $_REQUEST['mla_set_parent_post_type'] ) ? array_keys( $post_types ) : $_REQUEST['mla_set_parent_post_type'],
+			'post_type' => ( 'all' == $post_type ) ? array_keys( $post_types ) : $post_type,
 			'post_status' => 'any',
 			'posts_per_page' => $count,
 			'paged' => $paged,
@@ -387,14 +392,14 @@ class MLA_Ajax {
 		check_ajax_referer( MLACore::MLA_ADMIN_NONCE_ACTION, MLACore::MLA_ADMIN_NONCE_NAME );
 
 		if ( empty( $_REQUEST['post_ID'] ) ) {
-			echo __( 'ERROR', 'media-library-assistant' ) . ': ' . __( 'No post ID found', 'media-library-assistant' );
+			echo esc_html( __( 'ERROR', 'media-library-assistant' ) . ': ' . __( 'No post ID found', 'media-library-assistant' ) );
 			die();
 		} else {
-			$post_id = $_REQUEST['post_ID'];
+			$post_id = absint( $_REQUEST['post_ID'] );
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( __( 'ERROR', 'media-library-assistant' ) . ': ' . __( 'You are not allowed to edit this Attachment.', 'media-library-assistant' ) );
+			wp_die( esc_html( __( 'ERROR', 'media-library-assistant' ) . ': ' . __( 'You are not allowed to edit this Attachment.', 'media-library-assistant' ) ) );
 		}
 
 		if ( ! class_exists( 'MLAData' ) ) {
@@ -404,7 +409,7 @@ class MLA_Ajax {
 
 		$results = MLAData::mla_update_single_item( $post_id, $_REQUEST );
 		if ( false !== strpos( $results['message'], __( 'ERROR', 'media-library-assistant' ) ) ) {
-			wp_die( $results['message'] );
+			wp_die( esc_html( $results['message'] ) );
 		}
 
 		$new_item = (object) MLAData::mla_get_attachment_by_id( $post_id );

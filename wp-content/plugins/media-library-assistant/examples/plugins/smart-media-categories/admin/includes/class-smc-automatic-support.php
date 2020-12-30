@@ -3,9 +3,9 @@
  * Support functions for the SMC automatic actions.
  *
  * @package   Smart_Media_Categories_Admin
- * @author    David Lingren <dlingren@comcast.net>
+ * @author    David Lingren <david@davidlingren.com>
  * @license   GPL-2.0+
- * @link      @TODO http://example.com
+ * @link      http://davidlingren.com
  * @copyright 2014 David Lingren
  */
 
@@ -16,7 +16,7 @@
  * no need to create a new instance of the class.
  *
  * @package Smart_Media_Categories_Admin
- * @author  David Lingren <dlingren@comcast.net>
+ * @author  David Lingren <david@davidlingren.com>
  */
 class SMC_Automatic_Support {
 	/**
@@ -169,6 +169,9 @@ class SMC_Automatic_Support {
 	public static function action_add_attachment( $post_id ) {
 		//error_log( __LINE__ . ' SMC_Automatic_Support::action_add_attachment $post_id = ' . var_export( $post_id, true), 0 );
 		//error_log( __LINE__ . ' SMC_Automatic_Support::action_add_attachment $post = ' . var_export( get_post( $post_id ), true), 0 );
+
+		// Flush the cache of parent/child term assignments toforce resynch
+		SMC_Sync_Support::get_posts_per_view( NULL, true );
 		
 		if ( (boolean) SMC_Settings_Support::get_option( 'upload_item' ) ) {
 			SMC_Automatic_support::rule_upload_item( $post_id );
@@ -591,7 +594,7 @@ class SMC_Automatic_Support {
 			$sql = "UPDATE $wpdb->posts SET post_parent = {$parent_id}
 			WHERE ID = {$insert_id}";
 			$results = $wpdb->query( $sql );
-//error_log( "rule_insert_orphan SET post_parent({$insert_id}) $results = " . var_export( $results, true), 0 );
+//error_log( __LINE__ . " SMC_Automatic_Support::rule_insert_orphan SET post_parent({$insert_id}) $results = " . var_export( $results, true), 0 );
 			clean_attachment_cache( $insert_id );
 		} // each insert
 		
@@ -652,7 +655,7 @@ class SMC_Automatic_Support {
 			$sql = "UPDATE $wpdb->posts SET post_parent = {$parent_id}
 			WHERE ID = {$insert_id}";
 			$results = $wpdb->query( $sql );
-//error_log( "rule_insert_attached SET post_parent({$insert_id}) $results = " . var_export( $results, true), 0 );
+//error_log( __LINE__ . " SMC_Automatic_Support::rule_insert_attached SET post_parent({$insert_id}) $results = " . var_export( $results, true), 0 );
 			clean_attachment_cache( $insert_id );
 		} // each insert
 		
@@ -718,7 +721,7 @@ class SMC_Automatic_Support {
 				}
 				
 				// tt_ids are strings on input, old_tt_ids are integers
-				$tt_ids = array_map( absint, $tt_ids );
+				$tt_ids = array_map( 'absint', $tt_ids );
 //error_log( __LINE__ . ' SMC_Automatic_Support::rule_update_post_terms mapped $tt_ids = ' . var_export( $tt_ids, true), 0 );
 				if ( $tt_ids != $old_tt_ids ) {
 					$terms_changed = true;
